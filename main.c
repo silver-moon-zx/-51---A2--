@@ -158,8 +158,8 @@ void DispClear()
 函数：DispChar()
 功能：在数码管上显示字符
 参数：
-	x：数码管的坐标位置（0～7）
-	c：要显示的字符（仅限16进制数字和减号）
+	location：数码管的坐标位置（0～7）
+	display：要显示的字符（仅限16进制数字和减号）
 	dp：是否显示小数点，0－不显示，1－显示
 */
 void DispChar(unsigned char location,unsigned char display,bit dp)
