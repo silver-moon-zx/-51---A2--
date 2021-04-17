@@ -2,17 +2,17 @@
 #include <ABSACC.H>
 #include <ctype.h>
 
-//È«¾Ö±äÁ¿
-unsigned char DispBuf[8];	//¶¨ÒåÏÔÊ¾»º³åÇø£¨ÓÉ¶¨Ê±ÖĞ¶Ï³ÌĞò×Ô¶¯É¨Ãè£©
-unsigned long T0Count = 0;	//T1¶¨Ê±Æ÷¶¨Ê±Ê±¼äÄÚ£¬T0¼ÆÊıÆ÷¼ÇÂ¼Âö³åÊı
-unsigned long spill = 0;	//¼ÇÂ¼Ò»¶¨Ê±¼äÄÚT0¼ÆÊıÆ÷×ÜÒç³ö´ÎÊı
+//å…¨å±€å˜é‡
+unsigned char DispBuf[8];	//å®šä¹‰æ˜¾ç¤ºç¼“å†²åŒºï¼ˆç”±å®šæ—¶ä¸­æ–­ç¨‹åºè‡ªåŠ¨æ‰«æï¼‰
+unsigned long T0Count = 0;	//T1å®šæ—¶å™¨å®šæ—¶æ—¶é—´å†…ï¼ŒT0è®¡æ•°å™¨è®°å½•è„‰å†²æ•°
+unsigned long spill = 0;	//è®°å½•ä¸€å®šæ—¶é—´å†…T0è®¡æ•°å™¨æ€»æº¢å‡ºæ¬¡æ•°
 sbit tube2=P2^2;
 sbit tube3=P2^3;
 sbit tube4=P2^4;
 
 
 
-//º¯ÊıÉùÃ÷£»
+//å‡½æ•°å£°æ˜ï¼›
 void DispClear();
 void DispChar(unsigned char location,unsigned char display,bit dp);
 void DispNum(unsigned long num, bit gear);
@@ -23,14 +23,14 @@ void Nixie(unsigned char Location,unsigned char Number);
 
 
 /*
-	º¯Êı£ºÎ»Ñ¡ÒÔ¼°¶ÎÑ¡ÊıÂë¹Ü
-	²ÎÊı£º
-		Location:Î»Ñ¡
-		Number:¶ÎÑ¡£¬¸ßµçÆ½µãÁÁ
+	å‡½æ•°ï¼šä½é€‰ä»¥åŠæ®µé€‰æ•°ç ç®¡
+	å‚æ•°ï¼š
+		Location:ä½é€‰
+		Number:æ®µé€‰ï¼Œé«˜ç”µå¹³ç‚¹äº®
 */
 void Nixie(unsigned char Location,unsigned char Number)
 {
-	P0 = 0x00;		//ÏûÓ°
+	P0 = 0x00;		//æ¶ˆå½±
 	switch(Location)
 	{
 		case 0: tube2=1;tube3=1;tube4=1;break;
@@ -48,15 +48,15 @@ void Nixie(unsigned char Location,unsigned char Number)
 }
 
 /*
-	¹¦ÄÜ£º³õÊ¼»¯T0¼ÆÊıÆ÷£¬ÒÔ¼°T1¶¨Ê±Æ÷
+	åŠŸèƒ½ï¼šåˆå§‹åŒ–T0è®¡æ•°å™¨ï¼Œä»¥åŠT1å®šæ—¶å™¨
 */
 void SysInit()
 {
-	DispClear();	//³õÊ¼ÎªÈ«Ãğ
+	DispClear();	//åˆå§‹ä¸ºå…¨ç­
 	TR0 = 0;
 	TMOD = 0x15;
-	TH1 = 0xFA;
-	TL1 = 0x28;
+	TH1 = 0xFC;	//å¦‚æœè®¡æ•°å€¼å­˜åœ¨è¯¯å·®ï¼Œä½ éœ€è¦è°ƒæ•´TH1ï¼ŒTL1è¿™ä¸¤é¡¹çš„æ•°å€¼
+	TL1 = 0x19;
 	TH0 = 0;
 	TL0 = 0;
 
@@ -70,18 +70,18 @@ void SysInit()
 
 
 /*
-º¯Êı£ºT1INTSVC()
-¹¦ÄÜ£º¶¨Ê±Æ÷T1µÄÖĞ¶Ï·şÎñº¯Êı
+å‡½æ•°ï¼šT1INTSVC()
+åŠŸèƒ½ï¼šå®šæ—¶å™¨T1çš„ä¸­æ–­æœåŠ¡å‡½æ•°
 */
 void T1INTSVC() interrupt 3
 {
 	//code unsigned char com[] = {0x01,0x02,0x04,0x08,0x10,0x20,0x40,0x80};
 	static unsigned char n = 0;
-	static unsigned int T1Count = 0;		//×ÜÕ¢ÃÅÊ±¼ä=1ms*T1Count
-	static unsigned int LEDCount = 0;		//¿ØÖÆLEDÁÁÃğ	
+	static unsigned int T1Count = 0;		//æ€»é—¸é—¨æ—¶é—´=1ms*T1Count
+	static unsigned int LEDCount = 0;		//æ§åˆ¶LEDäº®ç­	
 
-	TH1 = 0xFA;
-	TL1 = 0x28;		//Ã¿´Î¼ÆÊıµ½£º0xFA28~0xFFFF,ºÄÊ±1ms.
+	TH1 = 0xFC;		//å¦‚æœè®¡æ•°å€¼å­˜åœ¨è¯¯å·®ï¼Œä½ éœ€è¦è°ƒæ•´TH1ï¼ŒTL1è¿™ä¸¤é¡¹çš„æ•°å€¼
+	TL1 = 0x19;		//æ¯æ¬¡è®¡æ•°åˆ°ï¼š0xFC19~0xFFFF,è€—æ—¶1ms.
 
 
 	LEDCount++;
@@ -91,7 +91,7 @@ void T1INTSVC() interrupt 3
 		T1Count = 0;
 		T0Count = spill*65536+TH0*256+TL0;
 
-		//³õÊ¼»¯T0¼ÆÊıÆ÷µÄÖµ
+		//åˆå§‹åŒ–T0è®¡æ•°å™¨çš„å€¼
 		TH0 = 0;
 		TL0 = 0;
 		spill = 0;
@@ -102,12 +102,12 @@ void T1INTSVC() interrupt 3
 	if(LEDCount < 1000)
 	{
 		
-		P3 = 0x00;				//LEDµãÁÁ1s
+		P3 = 0x00;				//LEDç‚¹äº®1s
 	}
 	else if(LEDCount >=1000 && LEDCount <= 2000)
 	{
-		P3 = 0xff;				//LEDÏ¨Ãğ1s
-		DispNum(T0Count,0);		//ÔÚLEDÏ¨ÃğÆÚ¼ä£¬±£´æ¼ÆÊıÖµ
+		P3 = 0xff;				//LEDç†„ç­1s
+		DispNum(T0Count,0);		//åœ¨LEDç†„ç­æœŸé—´ï¼Œä¿å­˜è®¡æ•°å€¼
 	}
 	else
 	{
@@ -117,12 +117,12 @@ void T1INTSVC() interrupt 3
 	}
 
 
-   	//ÏÂÃæ×¢ÊÍ²¿·ÖÎªAT89C51ÓÃ·¨£¬ÓÉÓÚÎ´²éµ½ÄãÊ¹ÓÃµÄµ¥Æ¬»úĞÍºÅµÄÍâ²¿´æ´¢Æ÷µØÖ·£¬¹Ê·ÅÆúÏÂÃæµÄ×î¼ÑÓÃ·¨
-	//XBYTE[0x7800] = 0xFF;		//ÔİÍ£ÏÔÊ¾
-	//XBYTE[0x7801] = ~DispBuf[n];	//¸üĞÂÉ¨ÃèÊı¾İ
-	//XBYTE[0x7800] = ~com[n];	//ÖØĞÂÏÔÊ¾
+   	//ä¸‹é¢æ³¨é‡Šéƒ¨åˆ†ä¸ºAT89C51ç”¨æ³•ï¼Œç”±äºæœªæŸ¥åˆ°ä½ ä½¿ç”¨çš„å•ç‰‡æœºå‹å·çš„å¤–éƒ¨å­˜å‚¨å™¨åœ°å€ï¼Œæ•…æ”¾å¼ƒä¸‹é¢çš„æœ€ä½³ç”¨æ³•
+	//XBYTE[0x7800] = 0xFF;		//æš‚åœæ˜¾ç¤º
+	//XBYTE[0x7801] = ~DispBuf[n];	//æ›´æ–°æ‰«ææ•°æ®
+	//XBYTE[0x7800] = ~com[n];	//é‡æ–°æ˜¾ç¤º
 
-	//¸ü¸ÄºóµÄÓÃ·¨
+	//æ›´æ”¹åçš„ç”¨æ³•
 	Nixie(n,DispBuf[n]);	
 
 	n++;
@@ -130,18 +130,18 @@ void T1INTSVC() interrupt 3
 }
 
 
-void T0INTSVC() interrupt 1		//T0ÖĞ¶Ïº¯Êı
+void T0INTSVC() interrupt 1		//T0ä¸­æ–­å‡½æ•°
 {
-	TH0 = 0;		//´Ó0¿ªÊ¼¼ÆÊı
-	TL0 = 0;		//´Ó0¿ªÊ¼¼ÆÊı
+	TH0 = 0;		//ä»0å¼€å§‹è®¡æ•°
+	TL0 = 0;		//ä»0å¼€å§‹è®¡æ•°
 	spill++;
 }
 
 
 
 /*
-º¯Êı£ºDispClear()
-¹¦ÄÜ£ºÇå³ıÊıÂë¹ÜµÄËùÓĞÏÔÊ¾
+å‡½æ•°ï¼šDispClear()
+åŠŸèƒ½ï¼šæ¸…é™¤æ•°ç ç®¡çš„æ‰€æœ‰æ˜¾ç¤º
 */
 void DispClear()
 {
@@ -155,43 +155,43 @@ void DispClear()
 
 
 /*
-º¯Êı£ºDispChar()
-¹¦ÄÜ£ºÔÚÊıÂë¹ÜÉÏÏÔÊ¾×Ö·û
-²ÎÊı£º
-	x£ºÊıÂë¹ÜµÄ×ø±êÎ»ÖÃ£¨0¡«7£©
-	c£ºÒªÏÔÊ¾µÄ×Ö·û£¨½öÏŞ16½øÖÆÊı×ÖºÍ¼õºÅ£©
-	dp£ºÊÇ·ñÏÔÊ¾Ğ¡Êıµã£¬0£­²»ÏÔÊ¾£¬1£­ÏÔÊ¾
+å‡½æ•°ï¼šDispChar()
+åŠŸèƒ½ï¼šåœ¨æ•°ç ç®¡ä¸Šæ˜¾ç¤ºå­—ç¬¦
+å‚æ•°ï¼š
+	xï¼šæ•°ç ç®¡çš„åæ ‡ä½ç½®ï¼ˆ0ï½7ï¼‰
+	cï¼šè¦æ˜¾ç¤ºçš„å­—ç¬¦ï¼ˆä»…é™16è¿›åˆ¶æ•°å­—å’Œå‡å·ï¼‰
+	dpï¼šæ˜¯å¦æ˜¾ç¤ºå°æ•°ç‚¹ï¼Œ0ï¼ä¸æ˜¾ç¤ºï¼Œ1ï¼æ˜¾ç¤º
 */
 void DispChar(unsigned char location,unsigned char display,bit dp)
 {
     unsigned char Tab[] =
-	{//¶¨Òå0123456789AbCdEFµÄÊıÂë¹Ü×ÖĞÍÊı¾İ
+	{//å®šä¹‰0123456789AbCdEFçš„æ•°ç ç®¡å­—å‹æ•°æ®
 		0x3F,0x06,0x5B,0x4F,0x66,0x6D,0x7D,0x07,
 		0x7F,0x6F,0x77,0x7C,0x39,0x5E,0x79,0x71
 	};
-    unsigned char temp;	//ÁÙÊ±±äÁ¿
-    //·ÀÖ¹ÏÔÊ¾Î»ÖÃ³¬³ö·¶Î§
+    unsigned char temp;	//ä¸´æ—¶å˜é‡
+    //é˜²æ­¢æ˜¾ç¤ºä½ç½®è¶…å‡ºèŒƒå›´
 	location &= 0x07;
 	location = 7 - location;
-    //·ÖÎö×Ö·ûc£¬È¡µÃ¶ÔÓ¦µÄÊıÂë¹Ü×ÖĞÍÊı¾İ
+    //åˆ†æå­—ç¬¦cï¼Œå–å¾—å¯¹åº”çš„æ•°ç ç®¡å­—å‹æ•°æ®
 	if ( display == '-' )
 	{
 		temp = 0x40;
 	}
     else
     {
-        display = toint(display);	//toint()Îª¿âº¯Êı£¬Ïê¼ûC:\Keil\C51\HLP\C51.pdf£¬Ê®Áù½øÖÆÊı×Ö¼ì²éº¯Êı£¬ÓÃÓÚ×ª»»ĞÎ²Î×Ö·ûÎªÊ®Áù½øÖÆÊı×Ö
+        display = toint(display);	//toint()ä¸ºåº“å‡½æ•°ï¼Œè¯¦è§C:\Keil\C51\HLP\C51.pdfï¼Œåå…­è¿›åˆ¶æ•°å­—æ£€æŸ¥å‡½æ•°ï¼Œç”¨äºè½¬æ¢å½¢å‚å­—ç¬¦ä¸ºåå…­è¿›åˆ¶æ•°å­—
         if(display<0xf)
         {
-            temp = Tab[display];	//²é±í£¬È¡µÃÊıÂë¹Ü×ÖĞÍÊı¾İ
+            temp = Tab[display];	//æŸ¥è¡¨ï¼Œå–å¾—æ•°ç ç®¡å­—å‹æ•°æ®
         }
         else
         {
-            temp = 0x00;	//Èç¹ûÊÇÆäËü×Ö·ûÔòÏÔÊ¾Îª¿Õ°×
+            temp = 0x00;	//å¦‚æœæ˜¯å…¶å®ƒå­—ç¬¦åˆ™æ˜¾ç¤ºä¸ºç©ºç™½
         }
     }
     
-	//¼ì²éÊÇ·ñÏÔÊ¾Ğ¡Êıµã
+	//æ£€æŸ¥æ˜¯å¦æ˜¾ç¤ºå°æ•°ç‚¹
 	if ( dp )
 	{
 		temp |= 0x80;
@@ -206,22 +206,22 @@ void DispChar(unsigned char location,unsigned char display,bit dp)
 
 
 /*
-	Ñ¡ÔñÇĞ»»ÒÔHzºÍKHzÎªµ¥Î»ÏÔÊ¾Ò»´®Êı×Ö£¬×î¶àÊ¹ÓÃÁùÎ»ÊıÂë¹Ü
-	²ÎÊınum£ºÒªÏÔÊ¾µÄÊı×Ö
-	²ÎÊıgear£ºµµÎ»ÇĞ»»£¬0ÎªHzµµ£¬1ÎªKHzµµ
-	ÆµÂÊ¼ÆÏÔÊ¾·¶Î§Îª10Hz~740KHz
+	é€‰æ‹©åˆ‡æ¢ä»¥Hzå’ŒKHzä¸ºå•ä½æ˜¾ç¤ºä¸€ä¸²æ•°å­—ï¼Œæœ€å¤šä½¿ç”¨å…­ä½æ•°ç ç®¡
+	å‚æ•°numï¼šè¦æ˜¾ç¤ºçš„æ•°å­—
+	å‚æ•°gearï¼šæ¡£ä½åˆ‡æ¢ï¼Œ0ä¸ºHzæ¡£ï¼Œ1ä¸ºKHzæ¡£
+	é¢‘ç‡è®¡æ˜¾ç¤ºèŒƒå›´ä¸º10Hz~740KHz
 */
 void DispNum(unsigned long num, bit gear)
 {
     code unsigned char s[] = "0123456789abcdef";
-    unsigned char data temp_arr[6] = 0;	//ÁÙÊ±Êı×é£¬×î¶à´æ·ÅÁùÎ»Êı×Ö
+    unsigned char data temp_arr[6] = 0;	//ä¸´æ—¶æ•°ç»„ï¼Œæœ€å¤šå­˜æ”¾å…­ä½æ•°å­—
     unsigned char i = 0;
-    bit dp;	//ÊÇ·ñÏÔÊ¾Ğ¡Êıµã
+    bit dp;	//æ˜¯å¦æ˜¾ç¤ºå°æ•°ç‚¹
     if(num>=0)
     {
         while (num != 0)
         {
-            //²ğ·ÖÊı×Ö
+            //æ‹†åˆ†æ•°å­—
             temp_arr[i] = num % 10;
             num =num / 10;
             i++;
@@ -235,7 +235,7 @@ void DispNum(unsigned long num, bit gear)
                     dp=1;
                 else
                     dp=0;
-                //KHzµµÎ»Ê±£¬ÊıÂë¹ÜÏÔÊ¾Êı×Ö
+                //KHzæ¡£ä½æ—¶ï¼Œæ•°ç ç®¡æ˜¾ç¤ºæ•°å­—
                 DispChar(7-i,s[temp_arr[i]],dp);
             }        
         }
@@ -243,7 +243,7 @@ void DispNum(unsigned long num, bit gear)
         {
             for(i=0;i<6;i++)
             {
-                //HzµµÎ»Ê±£¬ÊıÂë¹ÜÏÔÊ¾Êı×Ö
+                //Hzæ¡£ä½æ—¶ï¼Œæ•°ç ç®¡æ˜¾ç¤ºæ•°å­—
                 DispChar(7-i,s[temp_arr[i]],0);
             }
         } 
